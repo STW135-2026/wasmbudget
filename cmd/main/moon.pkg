@@ -1,0 +1,15 @@
+import {
+  "moonbitlang/core/env",
+  "moonbitlang/core/string",
+  "moonbitlang/core/encoding/utf8",
+  "STW135-2026/wasmbudget",
+}
+
+pkgtype(kind: "executable")
+
+options(
+  targets: {
+    "fs_native.mbt": [ "native" ],
+    "fs_stub.mbt": [ "wasm", "wasm-gc", "js" ],
+  },
+)

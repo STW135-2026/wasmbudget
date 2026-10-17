@@ -1,0 +1,71 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "STW135-2026/wasmbudget"
+
+// Values
+pub fn compare_wasm(WasmReport, WasmReport) -> WasmDiff
+
+pub fn inspect_wasm(Bytes) -> Result[WasmReport, WasmError]
+
+// Errors
+
+// Types and methods
+pub(all) struct FunctionDelta {
+  defined_index : Int
+  before_bytes : Int
+  after_bytes : Int
+  delta_bytes : Int
+}
+
+pub(all) struct SectionDelta {
+  name : String
+  before_bytes : Int
+  after_bytes : Int
+  delta_bytes : Int
+}
+
+pub(all) struct WasmDiff {
+  before_total : Int
+  after_total : Int
+  delta_total : Int
+  sections : Array[SectionDelta]
+  functions : Array[FunctionDelta]
+}
+pub fn WasmDiff::format(Self) -> String
+pub fn WasmDiff::within_budget(Self, Int) -> Bool
+
+pub(all) enum WasmError {
+  TruncatedHeader
+  InvalidMagic
+  UnsupportedVersion(UInt64)
+  TruncatedSection
+  InvalidLeb128
+  UnsupportedSection(Int)
+  DuplicateSection(Int)
+  InvalidSection(Int, String)
+}
+
+pub(all) struct WasmFunctionBody {
+  defined_index : Int
+  body_size : Int
+  encoded_size : Int
+}
+
+pub(all) struct WasmReport {
+  total_size : Int
+  sections : Array[WasmSection]
+  function_bodies : Array[WasmFunctionBody]
+}
+pub fn WasmReport::format(Self) -> String
+
+pub(all) struct WasmSection {
+  id : Int
+  name : String
+  offset : Int
+  payload_size : Int
+  encoded_size : Int
+  item_count : UInt64?
+}
+
+// Type aliases
+
+// Traits

@@ -40,4 +40,3 @@ moon build --target wasm --release
 ```
 
 See [`docs/PROPOSAL.zh-CN.md`](docs/PROPOSAL.zh-CN.md) for the concise project proposal.
-

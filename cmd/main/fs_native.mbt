@@ -35,6 +35,9 @@ extern "c" fn fclose_ffi(stream : CFile) -> Int = "moonbit_fclose_ffi"
 extern "c" fn make_bytes_raw(length : Int) -> Bytes = "moonbit_make_bytes_raw"
 
 ///|
+extern "c" fn process_exit(status : Int) -> Unit = "exit"
+
+///|
 fn c_string(value : String) -> Bytes {
   let encoded = @utf8.encode(value)
   let result = FixedArray::make(encoded.length() + 1, b'\x00')
@@ -69,4 +72,11 @@ fn read_binary(path : String) -> Result[Bytes, String] {
     return Err("failed to close file after reading: " + path)
   }
   Ok(buffer.exact_view(start=0, end=length).to_owned())
+}
+
+///|
+fn[T] fail(message : String) -> T {
+  println("error: " + message)
+  process_exit(1)
+  abort(message)
 }

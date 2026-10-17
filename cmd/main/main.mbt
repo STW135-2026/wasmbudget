@@ -59,55 +59,43 @@ fn main {
     "report" => {
       if args.length() != 3 {
         println(usage())
-        abort("report expects one Wasm file")
+        fail("report expects one Wasm file")
       }
       match scan_file(args[2]) {
         Ok(report) => println(report.format())
-        Err(message) => {
-          println("error: " + message)
-          abort(message)
-        }
+        Err(message) => fail(message)
       }
     }
     "compare" => {
       if args.length() != 4 && args.length() != 6 {
         println(usage())
-        abort("compare expects two Wasm files and an optional budget")
+        fail("compare expects two Wasm files and an optional budget")
       }
       let budget = if args.length() == 6 {
         if args[4] != "--max-growth" {
           println(usage())
-          abort("unknown compare option: " + args[4])
+          fail("unknown compare option: " + args[4])
         }
         match parse_budget(args[5]) {
           Ok(value) => Some(value)
-          Err(message) => {
-            println("error: " + message)
-            abort(message)
-          }
+          Err(message) => fail(message)
         }
       } else {
         None
       }
       let before = match scan_file(args[2]) {
         Ok(report) => report
-        Err(message) => {
-          println("error: " + message)
-          abort(message)
-        }
+        Err(message) => fail(message)
       }
       let after = match scan_file(args[3]) {
         Ok(report) => report
-        Err(message) => {
-          println("error: " + message)
-          abort(message)
-        }
+        Err(message) => fail(message)
       }
       let diff = @wasmbudget.compare_wasm(before, after)
       println(diff.format())
       match budget {
         Some(max_growth) if !diff.within_budget(max_growth) =>
-          abort(
+          fail(
             "Wasm growth " +
             diff.delta_total.to_string() +
             " bytes exceeds the budget of " +
@@ -118,7 +106,7 @@ fn main {
     }
     _ => {
       println(usage())
-      abort("unknown command: " + args[1])
+      fail("unknown command: " + args[1])
     }
   }
 }

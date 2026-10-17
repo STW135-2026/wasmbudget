@@ -2,11 +2,11 @@
 /// One WebAssembly section. `payload_size` excludes the section ID and size
 /// prefix; `encoded_size` includes both.
 pub(all) struct WasmSection {
-  id : Int
+  id : Int32
   name : String
-  offset : Int
-  payload_size : Int
-  encoded_size : Int
+  offset : Int32
+  payload_size : Int32
+  encoded_size : Int32
   item_count : UInt64?
 }
 
@@ -14,15 +14,15 @@ pub(all) struct WasmSection {
 /// Size of one function body in the code section. The index counts defined
 /// bodies only; imported function indices are not resolved by this scanner.
 pub(all) struct WasmFunctionBody {
-  defined_index : Int
-  body_size : Int
-  encoded_size : Int
+  defined_index : Int32
+  body_size : Int32
+  encoded_size : Int32
 }
 
 ///|
 /// Structural summary of a WebAssembly version-1 binary module.
 pub(all) struct WasmReport {
-  total_size : Int
+  total_size : Int32
   sections : Array[WasmSection]
   function_bodies : Array[WasmFunctionBody]
 }
@@ -31,27 +31,27 @@ pub(all) struct WasmReport {
 /// Per-section size change between a baseline and a candidate module.
 pub(all) struct SectionDelta {
   name : String
-  before_bytes : Int
-  after_bytes : Int
-  delta_bytes : Int
+  before_bytes : Int32
+  after_bytes : Int32
+  delta_bytes : Int32
 }
 
 ///|
 /// Per-defined-function body size change. Functions are matched by their
 /// zero-based order in the code section, not by debug names.
 pub(all) struct FunctionDelta {
-  defined_index : Int
-  before_bytes : Int
-  after_bytes : Int
-  delta_bytes : Int
+  defined_index : Int32
+  before_bytes : Int32
+  after_bytes : Int32
+  delta_bytes : Int32
 }
 
 ///|
 /// Comparison of two module reports.
 pub(all) struct WasmDiff {
-  before_total : Int
-  after_total : Int
-  delta_total : Int
+  before_total : Int32
+  after_total : Int32
+  delta_total : Int32
   sections : Array[SectionDelta]
   functions : Array[FunctionDelta]
 }
@@ -65,22 +65,22 @@ pub(all) enum WasmError {
   UnsupportedVersion(UInt64)
   TruncatedSection
   InvalidLeb128
-  UnsupportedSection(Int)
-  DuplicateSection(Int)
-  InvalidSection(Int, String)
+  UnsupportedSection(Int32)
+  DuplicateSection(Int32)
+  InvalidSection(Int32, String)
 }
 
 ///|
 priv struct WasmU32 {
   value : UInt64
-  next : Int
+  next : Int32
 }
 
 ///|
 fn wasm_read_u32(
   bytes : Bytes,
-  offset : Int,
-  limit : Int,
+  offset : Int32,
+  limit : Int32,
 ) -> Result[WasmU32, WasmError] {
   if offset < 0 || limit > bytes.length() || offset >= limit {
     return Err(TruncatedSection)
@@ -106,7 +106,7 @@ fn wasm_read_u32(
 }
 
 ///|
-fn wasm_section_name(id : Int) -> String {
+fn wasm_section_name(id : Int32) -> String {
   match id {
     0 => "custom"
     1 => "type"
@@ -129,9 +129,9 @@ fn wasm_section_name(id : Int) -> String {
 ///|
 fn wasm_vector_count(
   bytes : Bytes,
-  section_id : Int,
-  payload_start : Int,
-  payload_end : Int,
+  section_id : Int32,
+  payload_start : Int32,
+  payload_end : Int32,
 ) -> Result[WasmU32, WasmError] {
   if payload_start >= payload_end {
     return Err(InvalidSection(section_id, "missing vector count"))
@@ -142,9 +142,9 @@ fn wasm_vector_count(
 ///|
 fn wasm_custom_name(
   bytes : Bytes,
-  payload_start : Int,
-  payload_end : Int,
-) -> Result[(String, Int), WasmError] {
+  payload_start : Int32,
+  payload_end : Int32,
+) -> Result[(String, Int32), WasmError] {
   let length = match wasm_read_u32(bytes, payload_start, payload_end) {
     Ok(value) => value
     Err(error) => return Err(error)
@@ -161,8 +161,8 @@ fn wasm_custom_name(
 ///|
 fn wasm_code_bodies(
   bytes : Bytes,
-  payload_start : Int,
-  payload_end : Int,
+  payload_start : Int32,
+  payload_end : Int32,
 ) -> Result[(UInt64, Array[WasmFunctionBody]), WasmError] {
   let count = match wasm_vector_count(bytes, 10, payload_start, payload_end) {
     Ok(value) => value
@@ -307,7 +307,7 @@ pub fn inspect_wasm(bytes : Bytes) -> Result[WasmReport, WasmError] {
 }
 
 ///|
-fn wasm_name_index(names : Array[String], name : String) -> Int? {
+fn wasm_name_index(names : Array[String], name : String) -> Int32? {
   for index in 0..<names.length() {
     if names[index] == name {
       return Some(index)
@@ -321,8 +321,8 @@ fn wasm_name_index(names : Array[String], name : String) -> Int? {
 /// index. Function growth entries are sorted largest-first.
 pub fn compare_wasm(before : WasmReport, after : WasmReport) -> WasmDiff {
   let section_names : Array[String] = []
-  let before_sizes : Array[Int] = []
-  let after_sizes : Array[Int] = []
+  let before_sizes : Array[Int32] = []
+  let after_sizes : Array[Int32] = []
   for section in before.sections {
     let index = match wasm_name_index(section_names, section.name) {
       Some(index) => index
@@ -412,7 +412,10 @@ pub fn compare_wasm(before : WasmReport, after : WasmReport) -> WasmDiff {
 
 ///|
 /// Return whether the total module growth is at or below `max_growth_bytes`.
-pub fn WasmDiff::within_budget(self : WasmDiff, max_growth_bytes : Int) -> Bool {
+pub fn WasmDiff::within_budget(
+  self : WasmDiff,
+  max_growth_bytes : Int32,
+) -> Bool {
   max_growth_bytes >= 0 && self.delta_total <= max_growth_bytes
 }
 
@@ -434,7 +437,7 @@ pub fn WasmReport::format(self : WasmReport) -> String {
       "\n"
   }
   if !self.function_bodies.is_empty() {
-    let indices : Array[Int] = []
+    let indices : Array[Int32] = []
     for index in 0..<self.function_bodies.length() {
       indices.push(index)
     }

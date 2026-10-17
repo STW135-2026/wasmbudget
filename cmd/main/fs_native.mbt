@@ -4,7 +4,7 @@ priv type CFile
 
 ///|
 #borrow(ptr)
-extern "c" fn is_null(ptr : CFile) -> Int = "moonbit_is_null"
+extern "c" fn is_null(ptr : CFile) -> Int32 = "moonbit_is_null"
 
 ///|
 #borrow(path, mode)
@@ -14,28 +14,32 @@ extern "c" fn fopen_ffi(path : Bytes, mode : Bytes) -> CFile = "moonbit_fopen_ff
 #borrow(ptr, stream)
 extern "c" fn fread_ffi(
   ptr : Bytes,
-  size : Int,
-  count : Int,
+  size : Int32,
+  count : Int32,
   stream : CFile,
-) -> Int = "moonbit_fread_ffi"
+) -> Int32 = "moonbit_fread_ffi"
 
 ///|
 #borrow(stream)
-extern "c" fn fseek_ffi(stream : CFile, offset : Int, whence : Int) -> Int = "moonbit_fseek_ffi"
+extern "c" fn fseek_ffi(
+  stream : CFile,
+  offset : Int32,
+  whence : Int32,
+) -> Int32 = "moonbit_fseek_ffi"
 
 ///|
 #borrow(stream)
-extern "c" fn ftell_ffi(stream : CFile) -> Int = "moonbit_ftell_ffi"
+extern "c" fn ftell_ffi(stream : CFile) -> Int32 = "moonbit_ftell_ffi"
 
 ///|
 #borrow(stream)
-extern "c" fn fclose_ffi(stream : CFile) -> Int = "moonbit_fclose_ffi"
+extern "c" fn fclose_ffi(stream : CFile) -> Int32 = "moonbit_fclose_ffi"
 
 ///|
-extern "c" fn make_bytes_raw(length : Int) -> Bytes = "moonbit_make_bytes_raw"
+extern "c" fn make_bytes_raw(length : Int32) -> Bytes = "moonbit_make_bytes_raw"
 
 ///|
-extern "c" fn process_exit(status : Int) -> Unit = "exit"
+extern "c" fn process_exit(status : Int32) -> Unit = "exit"
 
 ///|
 fn c_string(value : String) -> Bytes {

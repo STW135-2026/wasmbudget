@@ -37,7 +37,7 @@ fn scan_file(path : String) -> Result[@wasmbudget.WasmReport, String] {
 }
 
 ///|
-fn parse_budget(value : String) -> Result[Int, String] {
+fn parse_budget(value : String) -> Result[Int32, String] {
   let result = @string.parse_int(value) catch {
     _ => return Err("max-growth must be a non-negative integer")
   }

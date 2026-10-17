@@ -1,0 +1,5 @@
+import {
+  "STW135-2026/wasmbudget",
+}
+
+pkgtype(kind: "executable")

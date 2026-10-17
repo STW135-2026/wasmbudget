@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install MoonBit
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
+          echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+      - name: Check format and targets
+        run: |
+          moon update
+          moon fmt --check
+          moon check --target all --deny-warn
+      - name: Run tests
+        run: moon test --target all --deny-warn
+      - name: Build and smoke-test the CLI
+        run: |
+          moon build --target wasm --release
+          moon run cmd/main --target native -- report _build/wasm/release/build/cmd/main/main.wasm
+          moon run cmd/main --target native -- compare _build/wasm/release/build/cmd/main/main.wasm _build/wasm/release/build/cmd/main/main.wasm --max-growth 0
+          moon run examples/scan_sample --target native

@@ -1,6 +1,6 @@
 # WasmBudget
 
-WasmBudget reports where a WebAssembly binary's bytes are used and compares two builds. It is meant for a familiar CI check: fail a build when the Wasm artifact grows more than the team allows.
+WasmBudget is a small MoonBit command for checking WebAssembly file-size changes before release. It compares two builds, shows section and larger function-body changes, and can fail a CI job when total growth exceeds a chosen limit. This helps catch size regressions before they reach users and gives developers a starting point for finding what changed.
 
 It reports standard/custom section sizes and the largest function-body sizes. A comparison shows section deltas and the largest function-body changes. `--max-growth` checks total artifact growth and returns a failing status when the limit is exceeded.
 
@@ -19,9 +19,9 @@ The CLI reads local files on the native target. The scanner library is MoonBit a
 
 ## Why another Wasm size tool?
 
-[Twiggy](https://github.com/AlexEne/twiggy) is an established profiler with call-graph analysis. [Starshine](https://github.com/jtenner/starshine-mb) is a much broader MoonBit toolkit for parsing, validating, and rewriting WebAssembly. WasmBudget is deliberately narrower: it turns a before/after artifact-size limit into a small command suitable for a project CI job, with section and body-size clues when the limit is crossed. It does not replace either project, inspect call graphs, or optimize modules.
+[Wassail](https://github.com/acieroid/wassail) reports section sizes; [wa-info/wa-diff](https://github.com/radekdoulik/wa-info) inspect and compare modules, including function-size comparisons; [Twiggy](https://github.com/AlexEne/twiggy) offers deeper size profiling. [Starshine](https://github.com/jtenner/starshine-mb) is a broader MoonBit WebAssembly toolkit. These projects already cover parts of the problem. WasmBudget keeps to one release check: a total-growth limit for CI, with section and function-body size changes as clues. It does not replace those tools, validate modules fully, or optimize them.
 
-The implementation is written independently in MoonBit against the [WebAssembly binary format](https://webassembly.github.io/spec/core/binary/modules.html); it does not copy code from those projects.
+WasmBudget is an independent MoonBit implementation of the [WebAssembly binary format](https://webassembly.github.io/spec/core/binary/modules.html); it does not use those projects' source code.
 
 ## Limits
 
@@ -40,3 +40,4 @@ moon build --target wasm --release
 ```
 
 See [`docs/PROPOSAL.zh-CN.md`](docs/PROPOSAL.zh-CN.md) for the concise project proposal.
+

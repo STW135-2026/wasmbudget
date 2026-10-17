@@ -39,4 +39,3 @@ Wassail 可以报告章节大小，[wa-info/wa-diff](https://github.com/radekdou
 ## 开源与后续价值
 
 项目采用 Apache-2.0 许可证。它可以作为 MoonBit 项目接入 WebAssembly 发布流水线的基础，也可在后续版本中增加稳定符号映射、JSON 报告或更方便的 CI 集成；这些内容不计入当前已完成范围。
-

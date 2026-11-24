@@ -17,6 +17,30 @@ The last command scans a tiny embedded module and needs no fixture file. The CI 
 
 The CLI reads local files on the native target. The scanner library is MoonBit and can be built for Wasm; the command-line filesystem adapter is currently native-only.
 
+## JSON output for CI
+
+Add `--json` after the input filename(s) to write one JSON document to stdout:
+
+```sh
+moon run cmd/main --target native -- report candidate.wasm --json
+moon run cmd/main --target native -- compare baseline.wasm candidate.wasm --max-growth 4096 --json > size-diff.json
+```
+
+The JSON includes `schema_version: 1` and byte counts as numbers. The report
+lists all sections and function bodies. The comparison lists all section
+deltas and changed function bodies, with a `budget` object holding
+`max_growth_bytes` and `passed` when a limit is set (`null` otherwise).
+A rejected budget still writes the comparison JSON and exits with status 1,
+so CI can retain the report even when the size gate fails. Argument and file
+errors do not produce a comparison document. Without `--json`, output is text.
+
+Run the native CLI integration test with Python 3 in a clean checkout:
+
+```sh
+moon build --target native --release
+python3 tests/cli.py _build/native/release/build/cmd/main/main.exe
+```
+
 ## Why another Wasm size tool?
 
 [Wassail](https://github.com/acieroid/wassail) reports section sizes; [wa-info/wa-diff](https://github.com/radekdoulik/wa-info) inspect and compare modules, including function-size comparisons; [Twiggy](https://github.com/AlexEne/twiggy) offers deeper size profiling. [Starshine](https://github.com/jtenner/starshine-mb) is a broader MoonBit WebAssembly toolkit. These projects already cover parts of the problem. WasmBudget keeps to one release check: a total-growth limit for CI, with section and function-body size changes as clues. It does not replace those tools, validate modules fully, or optimize them.

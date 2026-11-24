@@ -81,6 +81,11 @@ fn read_binary(path : String) -> Result[Bytes, String] {
 ///|
 fn[T] fail(message : String) -> T {
   println("error: " + message)
+  exit_failure(message)
+}
+
+///|
+fn[T] exit_failure(message : String) -> T {
   process_exit(1)
   abort(message)
 }

@@ -29,3 +29,7 @@ jobs:
           moon run cmd/main --target native -- report _build/wasm/release/build/cmd/main/main.wasm
           moon run cmd/main --target native -- compare _build/wasm/release/build/cmd/main/main.wasm _build/wasm/release/build/cmd/main/main.wasm --max-growth 0
           moon run examples/scan_sample --target native
+      - name: Exercise JSON and budget exit status end to end
+        run: |
+          moon build --target native --release
+          python3 tests/cli.py _build/native/release/build/cmd/main/main.exe
